@@ -1,46 +1,44 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
-import "./globals.css";
-import Link from "next/link";
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+import "@/app/globals.css";
+import { auth } from "@/auth";
+import Header from "@/components/header";
+import ProviderTree from "@/state/provider-tree";
+import { rubik, jetBrainsMono } from "@/lib/typeface/fonts";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Next.js ChatGPT App",
   description: "Next.js + OpenAI + ChatGPT",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+  if (session?.user) {
+    // Look into https://react.dev/reference/react/experimental_taintObjectReference
+    // filter out sensitive data before passing to client.
+    session.user = {
+      name: session.user.name,
+      email: session.user.email,
+      image: session.user.image,
+    };
+  }
+  console.log("session", session);
+  if (!session) redirect("/api/auth/signin");
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} font-[family-name:var(--font-geist-sans)] px-2 md:px-5 antialiased`}
+        className={`${rubik.variable} ${jetBrainsMono.variable} font-[family-name:var(--font-karla)] antialiased bg-background text-foreground`}
       >
-        <header className="text-green-900 font-bold bg-green-500 text-2xl p-2 mb-3 rounded-b-lg shadow-gray-700 shadow-md flex">
-          <div className="flex flex-grow px-4">
-            <Link href="/">Home</Link>
-            <Link href="/about" className="ml-5 font-light">
-              About
-            </Link>
+        <ProviderTree session={session}>
+          <Header />
+          <div className="flex flex-col md:flex-row">
+            <div className="flex-grow">{children}</div>
           </div>
-          <div></div>
-        </header>
-        <div className="flex flex-col md:flex-row">
-          <div className="flex-grow">{children}</div>
-        </div>
+        </ProviderTree>
       </body>
     </html>
   );
