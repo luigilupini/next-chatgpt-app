@@ -26,10 +26,9 @@ export default async function RootLayout({
       image: session.user.image,
     };
   }
-  console.log("session", session);
   if (!session) redirect("/api/auth/signin");
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${rubik.variable} ${jetBrainsMono.variable} font-[family-name:var(--font-karla)] antialiased bg-background text-foreground`}
       >
