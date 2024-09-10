@@ -5,7 +5,6 @@ export default async function Home() {
     <main className="p-5">
       <h1 className="text-4xl font-bold">Home Route</h1>
       <p>This is the Home Route</p>
-      <Todos />
     </main>
   );
 }
