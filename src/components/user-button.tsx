@@ -1,5 +1,4 @@
 "use client";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,26 +9,19 @@ import {
 import { enter, leave } from "@/server/auth";
 
 import { useSession } from "next-auth/react";
-
-const initials = (str?: string | null) => {
-  const match = (str || "").match(/[A-Z]/g);
-  return match ? match.slice(0, 2).join("") : "GT";
-};
+import UserAvatar from "./user-avatar";
 
 export default function UserButton() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
 
   return (
-    <div className="flex items-center">
+    <div className={"flex items-center"}>
       {status === "authenticated" && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Avatar>
-              {session?.user?.image && <AvatarImage src={session.user.image} />}
-              <AvatarFallback className="text-sm">
-                {initials(session?.user?.name)}
-              </AvatarFallback>
-            </Avatar>
+            <button className="select-none">
+              <UserAvatar className="size-8 border-border border rounded-full" />
+            </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="mx-2">
             <DropdownMenuItem onClick={() => leave()}>

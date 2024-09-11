@@ -1,8 +1,9 @@
+import Message from "@/components/chat/message";
+
 export default async function Home() {
   return (
-    <main className="p-5">
-      <h1 className="text-4xl font-bold">Home Route</h1>
-      <p>This is the Home Route</p>
+    <main className="flex flex-col p-5 size-full flex-1 overflow-hidden">
+      <Message />
     </main>
   );
 }

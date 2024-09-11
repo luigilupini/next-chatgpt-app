@@ -5,7 +5,7 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-karla);
 }
 
 @layer utilities {
@@ -85,5 +85,20 @@ body {
     --border: 0 0% 21%;
     --input: 0 0% 21%;
     --ring: 153 60% 53%;
+  }
+}
+
+@layer components {
+  .screen-full {
+    @apply h-screen w-screen;
+  }
+  .ping {
+    @apply rounded-md border border-red-600/50 bg-red-600/5 shadow;
+  }
+  .center {
+    @apply flex items-center justify-center;
+  }
+  .between {
+    @apply flex items-center justify-between;
   }
 }

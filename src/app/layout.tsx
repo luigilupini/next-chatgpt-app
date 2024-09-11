@@ -30,13 +30,11 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${rubik.variable} ${jetBrainsMono.variable} font-[family-name:var(--font-karla)] antialiased bg-background text-foreground`}
+        className={`${rubik.variable} ${jetBrainsMono.variable} antialiased flex flex-col h-screen w-screen`}
       >
         <ProviderTree session={session}>
           <Header />
-          <div className="flex flex-col md:flex-row">
-            <div className="flex-grow">{children}</div>
-          </div>
+          {children}
         </ProviderTree>
       </body>
     </html>
