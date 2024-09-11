@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Send } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -17,14 +17,14 @@ interface Message {
 export default function Message() {
   const [messageHistory, setMessageHistory] = useState<Message[]>([]);
   const [message, setMessage] = useState("");
+  const chatId = useRef<number | null>(null);
 
   const onClick = async () => {
     const completions = await getCompletion({
-      messageHistory: [
-        ...messageHistory, // Spread the current message history :)
-        { role: "user", content: message }, // Add the new message!
-      ],
+      id: chatId.current!,
+      messageHistory: [...messageHistory, { role: "user", content: message }],
     });
+    chatId.current = completions.id;
     setMessage("");
     setMessageHistory(completions.messages);
   };
