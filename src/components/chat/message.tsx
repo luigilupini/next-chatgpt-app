@@ -8,21 +8,30 @@ import { getCompletion } from "@/server/ai/get-completion";
 import { Card } from "@/components/ui/card";
 import UserAvatar from "../user-avatar";
 import { useSession } from "next-auth/react";
+import { cn } from "@/lib/utils";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
 }
 
-export default function Message() {
-  const [messageHistory, setMessageHistory] = useState<Message[]>([]);
+interface MessagesProps {
+  id?: number | null;
+  messages?: Message[];
+}
+
+export default function Message({
+  id = null,
+  messages: initialMessages = [],
+}: MessagesProps) {
+  const [messages, setMessageHistory] = useState<Message[]>(initialMessages);
   const [message, setMessage] = useState("");
-  const chatId = useRef<number | null>(null);
+  const chatId = useRef<number | null>(id);
 
   const onClick = async () => {
     const completions = await getCompletion({
       id: chatId.current!,
-      messageHistory: [...messageHistory, { role: "user", content: message }],
+      messageHistory: [...messages, { role: "user", content: message }],
     });
     chatId.current = completions.id;
     setMessage("");
@@ -32,7 +41,7 @@ export default function Message() {
   return (
     <Card className="flex flex-col w-full h-fit mt-auto p-2 overflow-hidden">
       <section className="flex flex-col flex-1 gap-6 overflow-y-scroll">
-        {messageHistory.map((message, i) => (
+        {messages.map((message, i) => (
           <div
             key={i}
             className={`relative center flex-col px-2 ${
@@ -53,7 +62,12 @@ export default function Message() {
           </div>
         ))}
       </section>
-      <section className="flex border-t-2 border-dashed border-border/50 pt-2 mt-3">
+      <section
+        className={cn(
+          "flex border-t-2 border-dashed border-border/50 pt-2 mt-3",
+          { "border-none pt-0 mt-0": messages.length === 0 }
+        )}
+      >
         <Input
           className="flex-grow placeholder:opacity-50 text-sm"
           placeholder="Question Here!"
@@ -82,7 +96,7 @@ const UserRole = () => {
   return (
     <div className="relative flex items-center gap-2">
       <UserAvatar className="size-5" />
-      <span className="absolute -right-2 -bottom-6 text-[10px] text-nowrap italic">
+      <span className="absolute -right-2 -bottom-6 text-[10px] text-nowrap italic font-medium">
         {session?.user?.name}
       </span>
     </div>

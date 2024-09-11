@@ -22,7 +22,10 @@ export async function getCompletion({
 }: GetCompletionProps) {
   const response = await openai.chat.completions.create({
     model: "gpt-3.5-turbo",
-    messages: messageHistory,
+    messages: messageHistory.map((message) => ({
+      role: message.role,
+      content: message.content,
+    })),
   });
 
   const messages = [
