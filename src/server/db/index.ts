@@ -1,4 +1,5 @@
-import { sql } from "@vercel/postgres";
+import { sql } from '@vercel/postgres';
+
 import type { Chat, ChatWithMessages, Message } from "@/types";
 
 export async function getChat(
@@ -10,8 +11,16 @@ export async function getChat(
   }
   const { rows: messages } =
     await sql`SELECT * FROM messages WHERE chat_id = ${chatId}`;
+
+  const messagesReturn = messages.map((msg) => ({
+    ...msg,
+    role: msg.role as "user" | "assistant",
+    content: msg.content,
+  }));
+
+  console.log("messagesReturn", messagesReturn.length);
+
   return {
-    ...chats[0],
     messages: messages.map((msg) => ({
       ...msg,
       role: msg.role as "user" | "assistant",
@@ -23,6 +32,11 @@ export async function getChat(
 export async function getChats(userEmail: string): Promise<Chat[]> {
   const { rows: chats } =
     await sql`SELECT * FROM chats WHERE user_email = ${userEmail}`;
+  return chats as Chat[];
+}
+
+export async function getAllChats(): Promise<Chat[]> {
+  const { rows: chats } = await sql`SELECT * FROM chats`;
   return chats as Chat[];
 }
 

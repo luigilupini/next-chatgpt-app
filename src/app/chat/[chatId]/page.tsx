@@ -1,14 +1,15 @@
-import Message from "@/components/chat/message";
-import { getChat } from "@/server/db";
-import { notFound } from "next/navigation";
+import { unstable_noStore as noStore } from 'next/cache';
+import { notFound } from 'next/navigation';
 
-export const dynamic = "force-dynamic";
+import Message from '@/components/chat/message';
+import { getChat } from '@/server/db';
 
 export default async function ChatDetail({
   params,
 }: {
   params: { chatId: string };
 }) {
+  noStore();
   const { chatId } = params;
   const chat = await getChat(+chatId);
   if (!chat) return notFound();
