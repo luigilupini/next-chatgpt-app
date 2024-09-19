@@ -1,4 +1,5 @@
 import { MessageCircle, MessagesSquare, RefreshCcw } from 'lucide-react';
+import { unstable_noStore as noStore } from 'next/cache';
 import Link from 'next/link';
 
 import { auth as getServerSession } from '@/auth';
@@ -10,7 +11,10 @@ import {
 import { delay, lastSeen } from '@/lib/utils';
 import { getChatsWithMessages } from '@/server/db';
 
+import DeleteChatButton from './chat/delete-chat-button';
+
 export default async function PreviousChats() {
+  noStore();
   const session = await getServerSession();
   const chats = await getChatsWithMessages(session?.user?.email!);
   await delay(3000); // Simulate network latency
@@ -26,13 +30,13 @@ export default async function PreviousChats() {
         </Button>
       </SheetTrigger>
       <SheetContent>
-        <SheetHeader className="mb-12">
+        <SheetHeader>
           <SheetTitle>Previous Sessions</SheetTitle>
           <SheetDescription className="text-opacity-60">
             Select chat session to view its transcript
           </SheetDescription>
         </SheetHeader>
-        <section className="h-[90%] overflow-y-auto">
+        <section className="h-[90%] overflow-y-auto my-4">
           <div className="space-y-6">
             {chats.map((chat) => (
               <Link
@@ -51,9 +55,12 @@ export default async function PreviousChats() {
                 </div>
 
                 <Transcript messages={chat.messages.slice(0, 2)} />
-                <span className="text-[10px] italic flex-1 text-center p-2">
-                  Created: {lastSeen(chat.timestamp)}
-                </span>
+                <div className="between">
+                  <span className="text-[10px] italic flex-1 p-2 text-left">
+                    Created: {lastSeen(chat.timestamp)}
+                  </span>
+                  <DeleteChatButton id={chat.id} />
+                </div>
               </Link>
             ))}
           </div>

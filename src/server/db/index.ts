@@ -62,7 +62,7 @@ export async function getChatsWithMessages(
   userEmail: string
 ): Promise<ChatWithMessages[]> {
   const { rows: chats } =
-    await sql`SELECT * FROM chats WHERE user_email = ${userEmail} ORDER BY timestamp DESC LIMIT 3`;
+    await sql`SELECT * FROM chats WHERE user_email = ${userEmail} ORDER BY timestamp`;
 
   for (const chat of chats) {
     const { rows: messages } =
@@ -96,8 +96,8 @@ export async function updateChat(chatId: number, msgs: Message[]) {
 }
 
 export async function deleteChat(chatId: number) {
-  await sql`DELETE FROM messages WHERE chat_id = ${chatId}`;
   await sql`DELETE FROM chats WHERE id = ${chatId}`;
+  await sql`DELETE FROM messages WHERE chat_id = ${chatId}`;
 }
 
 export async function deleteChats(userEmail: string) {

@@ -1,6 +1,6 @@
 import { RefObject, useEffect } from 'react';
 
-function useScrollBottom(ref: RefObject<HTMLElement>, delay: number = 1000) {
+function useScrollToBottom(ref: RefObject<HTMLElement>, delay: number = 1000) {
   useEffect(() => {
     if (!ref.current) return;
 
@@ -17,4 +17,4 @@ function useScrollBottom(ref: RefObject<HTMLElement>, delay: number = 1000) {
   }, [ref, delay]);
 }
 
-export default useScrollBottom;
+export default useScrollToBottom;

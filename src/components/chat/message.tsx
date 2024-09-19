@@ -1,4 +1,5 @@
 "use client";
+
 import { useChat } from 'ai/react';
 import { Loader, Send } from 'lucide-react';
 import { useEffect, useRef } from 'react';
@@ -7,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import UserAvatar from '@/components/user-avatar';
-import useScrollBottom from '@/hooks/use-scroll-bottom';
+import useScrollAutoBottom from '@/hooks/use-scroll-auto-bottom';
+import useScrollToBottom from '@/hooks/use-scroll-to-bottom';
 import { cn } from '@/lib/utils';
 import { updateChat } from '@/server/ai/update-chat';
 
@@ -47,7 +49,7 @@ export default function Message({
 
   return (
     <Card className="flex flex-col w-full h-fit mt-auto p-2 overflow-hidden">
-      <Messages messages={messages as Message[]} />
+      <Messages messages={messages as Message[]} isLoading={isLoading} />
       <form
         onSubmit={handleSubmit}
         className={cn(
@@ -81,14 +83,23 @@ export default function Message({
   );
 }
 
-export const Messages = ({ messages }: { messages: Message[] }) => {
+export const Messages = ({
+  messages,
+  isLoading,
+}: {
+  messages: Message[];
+  isLoading: boolean;
+}) => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  useScrollBottom(scrollRef, 500);
+  useScrollToBottom(scrollRef, 500);
+  useScrollAutoBottom(scrollRef, isLoading);
   return (
     <section
       ref={scrollRef}
       style={{ overflowY: "scroll" }}
-      className="flex flex-col flex-1 overflow-y-scroll"
+      className={cn("flex flex-col flex-1 overflow-y-scroll", {
+        "p-2": messages.length > 0,
+      })}
     >
       {messages.map((message, i) => (
         <div
