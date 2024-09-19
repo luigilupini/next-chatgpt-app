@@ -29,7 +29,7 @@ export default function Transcript({
             }`}
           >
             {message.role === "assistant" && <AssistantRole />}
-            <p className="flex-1 leading-relaxed">
+            <p className="flex-1 leading-relaxed text-nowrap">
               {truncate ? truncateText(message.content, 40) : message.content}
             </p>
             {message.role === "user" && <UserRole />}

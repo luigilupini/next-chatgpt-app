@@ -1,15 +1,17 @@
 "use client";
+import { useChat } from 'ai/react';
 import { Loader, Send } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import UserAvatar from '@/components/user-avatar';
+import useScrollBottom from '@/hooks/use-scroll-bottom';
 import { cn } from '@/lib/utils';
-import { getCompletion } from '@/server/ai/get-completion';
+import { updateChat } from '@/server/ai/update-chat';
 
-import UserAvatar from '../user-avatar';
-
+import type { Message as AIMessage } from "ai";
 interface Message {
   role: "user" | "assistant";
   content: string;
@@ -24,64 +26,70 @@ export default function Message({
   id = null,
   messages: initialMessages = [],
 }: MessagesProps) {
-  const [messages, setMessageHistory] = useState<Message[]>(initialMessages);
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { messages, input, handleInputChange, handleSubmit, isLoading } =
+    useChat({
+      initialMessages: initialMessages as unknown as AIMessage[],
+    });
+
   const chatId = useRef<number | null>(id);
 
-  const onClick = async () => {
-    if (message.length === 0) return;
-    setLoading(true);
-    const completions = await getCompletion({
-      id: chatId.current!,
-      messageHistory: [...messages, { role: "user", content: message }],
-    });
-    chatId.current = completions.id;
-    setMessage("");
-    setMessageHistory(completions.messages);
-    setLoading(false);
-  };
+  useEffect(() => {
+    (async () => {
+      if (!isLoading && messages.length) {
+        const simplifiedMessages = messages.map((message) => ({
+          role: message.role as "user" | "assistant",
+          content: message.content,
+        }));
+        await updateChat(chatId.current, simplifiedMessages);
+      }
+    })();
+  }, [messages, isLoading]);
 
   return (
     <Card className="flex flex-col w-full h-fit mt-auto p-2 overflow-hidden">
-      <Messages messages={messages} />
-      <section
+      <Messages messages={messages as Message[]} />
+      <form
+        onSubmit={handleSubmit}
         className={cn(
           "flex border-t-2 border-dashed border-border/50 pt-2 mt-3",
           { "border-none pt-0 mt-0": messages.length === 0 }
         )}
       >
         <Input
-          disabled={loading}
+          disabled={isLoading}
           className="flex-grow placeholder:opacity-50 text-sm"
           placeholder={"Type a message..."}
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyUp={(e) => {
-            if (e.key === "Enter") onClick();
-          }}
+          value={input}
+          onChange={handleInputChange}
+          autoFocus
         />
         <Button
-          disabled={message.length === 0}
+          type="submit"
+          disabled={isLoading}
           variant={"outline"}
-          onClick={onClick}
           className="ml-3 center gap-2"
         >
-          {loading ? (
+          {isLoading ? (
             <Loader className="animate-spin stroke-primary" size={14} />
           ) : (
             <Send size={14} />
           )}
           Send
         </Button>
-      </section>
+      </form>
     </Card>
   );
 }
 
 export const Messages = ({ messages }: { messages: Message[] }) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useScrollBottom(scrollRef, 500);
   return (
-    <section className="flex flex-col flex-1 overflow-y-scroll">
+    <section
+      ref={scrollRef}
+      style={{ overflowY: "scroll" }}
+      className="flex flex-col flex-1 overflow-y-scroll"
+    >
       {messages.map((message, i) => (
         <div
           key={i}
